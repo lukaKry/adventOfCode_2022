@@ -1,7 +1,6 @@
 const fs = require("fs");
 
-let currDir = '';
-let currPath = [];
+let path = [];
 let directories = {};
 // in order to debug add puzzle7/ in front of input.txt
 fs.readFile("input.txt", "utf8", (err, data) => {
@@ -29,25 +28,21 @@ function parse(line) {
     }
 
     if(/[0-9]/.test(line[0])) {
-        const file = line.split(' ');
-        currPath.forEach( dir => {
-            directories[dir] += parseInt(file[0]);
+        const size = line.split(' ');
+        path.forEach( dir => {
+            directories[dir] += parseInt(size[0]);
         })
     }
 
     if(line.startsWith('$ cd ')) {
         const newDir = line.split(' ');
         if(newDir[2] === '/') {
-            currDir = '/';
-            currPath.push(currDir);
+            path.push('/');
             directories['/'] = 0;
         } else if(/[a-zA-Z]/.test(newDir[2])) {
-            currDir = newDir[2];
-            currPath.push(currDir);
+            path.push(newDir[2]);
         } else {
-            currPath.pop();
-            currDir = currPath[currPath.length-1];
+            path.pop();
         }
-        
     }
 }
