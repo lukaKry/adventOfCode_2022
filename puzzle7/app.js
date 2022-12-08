@@ -2,45 +2,54 @@ const fs = require("fs");
 
 let path = [];
 let directories = {};
-// in order to debug add puzzle7/ in front of input.txt
 fs.readFile("input.txt", "utf8", (err, data) => {
     data = data.split('\r\n');
 
     data.forEach(line => parse(line));
 
-    console.log(directories);
-
-    let result = 0;
+    let ans1 = 0;
     for(key in directories) {
         if(directories[key] <= 100000) {
-            result += directories[key];
+            ans1 += directories[key];
         }
     }
+    console.log(ans1);
 
-    console.log(result);
+    // calc needed space to free 
+    const totalCapacity = 70000000;
+    const freeSpaceLeft = totalCapacity - directories['/'];
+    const remainingSpaceToRelease = 30000000 - freeSpaceLeft;
+    const potentialDirsToDelete = [];
+    for(key in directories) {
+        if(directories[key] >= remainingSpaceToRelease) {
+            potentialDirsToDelete.push(directories[key]);
+        }
+    }
+    potentialDirsToDelete.sort((a,b) => a-b);
+    console.log(potentialDirsToDelete[0]);
+
 })
 
 
 function parse(line) {
-    if(line.startsWith('dir ')) {
-        const dir = line.split(' ');
-        directories[dir[1]] = 0;
-    }
-
     if(/[0-9]/.test(line[0])) {
         const size = line.split(' ');
-        path.forEach( dir => {
-            directories[dir] += parseInt(size[0]);
-        })
+        for(let j = 0; j<path.length; j++) {
+            const dirName = path.slice(0,j+1);
+            directories[dirName.join('')] += parseInt(size[0]);
+        }
     }
 
     if(line.startsWith('$ cd ')) {
         const newDir = line.split(' ');
         if(newDir[2] === '/') {
             path.push('/');
-            directories['/'] = 0;
+            const dirNameByPath = path.join('');
+            directories[dirNameByPath] = 0;
         } else if(/[a-zA-Z]/.test(newDir[2])) {
             path.push(newDir[2]);
+            const dirName = path.join('');
+            directories[dirName] = 0;
         } else {
             path.pop();
         }
